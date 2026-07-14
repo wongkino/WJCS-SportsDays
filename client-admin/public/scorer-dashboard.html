@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>懷智運動會 - 記分員系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .header {
+            background: white;
+            padding: 0 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 64px;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            color: #1890ff;
+            margin-right: 12px;
+        }
+        
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1890ff;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-name {
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .logout-btn {
+            background: #ff4d4f;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .logout-btn:hover {
+            background: #ff7875;
+        }
+        
+        .content {
+            padding: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            border-left: 4px solid #1890ff;
+            background: #e6f7ff;
+            color: #0050b3;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 16px;
+            align-items: end;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-select, .form-input {
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+        
+        .form-select:focus, .form-input:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #1890ff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #40a9ff;
+        }
+        
+        .btn-primary:disabled {
+            background: #d9d9d9;
+            cursor: not-allowed;
+        }
+        
+        .btn-success {
+            background: #52c41a;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #73d13d;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+        
+        .table th,
+        .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .table th {
+            background: #fafafa;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .table tbody tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .tag-blue {
+            background: #e6f7ff;
+            color: #0050b3;
+        }
+        
+        .tag-pink {
+            background: #fff0f6;
+            color: #c41d7f;
+        }
+        
+        .score-input {
+            width: 120px;
+            padding: 6px 8px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .score-input:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+        
+        .score-input:disabled {
+            background: #f5f5f5;
+            color: #999;
+        }
+        
+        .submitted-tag {
+            background: #f6ffed;
+            color: #52c41a;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        /* 模式切換按鈕 */
+        .mode-switch {
+            display: flex;
+            background: #f5f5f5;
+            border-radius: 6px;
+            padding: 4px;
+        }
+
+        .mode-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: #666;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: #1890ff;
+            color: white;
+        }
+
+        .mode-btn:hover:not(.active) {
+            background: #e6f7ff;
+            color: #1890ff;
+        }
+
+        /* 批量工具欄 */
+        .batch-toolbar {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 16px 0;
+        }
+
+        .batch-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .batch-label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .batch-input {
+            width: 120px;
+            padding: 6px 8px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .batch-input:focus {
+            outline: none;
+            border-color: #1890ff;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #1890ff;
+        }
+        
+        .error {
+            color: #ff4d4f;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .success {
+            color: #52c41a;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        .pagination button {
+            padding: 6px 12px;
+            border: 1px solid #d9d9d9;
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        
+        .pagination button:hover {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+        
+        .pagination button.active {
+            background: #1890ff;
+            color: white;
+            border-color: #1890ff;
+        }
+        
+        .pagination button:disabled {
+            background: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+        }
+        
+        .single-input-notice {
+            background: #e3f2fd;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #bbdefb;
+        }
+        
+        .notice-text {
+            color: #1976d2;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        
+        .event-info {
+            background: #e6f7ff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #0050b3;
+        }
+        
+        .event-tag {
+            display: inline-block;
+            background: #1890ff;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        
+        .score-input-with-unit {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .score-input-with-unit input {
+            padding-right: 40px;
+        }
+        
+        .score-unit {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 12px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <span class="logo">🏆</span>
+            <span class="title">記分員系統</span>
+        </div>
+        <div class="user-info">
+            <span class="user-name" id="userName">載入中...</span>
+            <button class="logout-btn" onclick="logout()">登出</button>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="card">
+            <div class="card-title">
+                🏆 分數輸入
+            </div>
+            
+            <div class="alert" id="alertMessage">
+                歡迎使用記分員系統！請選擇運動項目和輪次，然後載入參賽者列表進行分數輸入。系統會根據比賽項目的組別和性別自動過濾參賽者。
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">運動項目</label>
+                    <select class="form-select" id="eventSelect">
+                        <option value="">請選擇運動項目</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">輪次</label>
+                    <select class="form-select" id="roundSelect">
+                        <option value="1">初賽</option>
+                        <option value="2">決賽</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn btn-primary" onclick="loadParticipants()" id="loadBtn" disabled>
+                        載入參賽者
+                    </button>
+                </div>
+            </div>
+
+            <div id="participantsSection" style="display: none;">
+                <div id="eventInfo" class="event-info" style="display: none;">
+                    <span id="eventDetails"></span>
+                </div>
+                
+                <div class="form-row" style="justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3 id="sectionTitle">載入中...</h3>
+                    </div>
+                    <div>
+                        <button class="btn btn-success" onclick="submitScores()" id="submitBtn" disabled>
+                            提交分數 (<span id="scoreCount">0</span>)
+                        </button>
+                        <button class="btn btn-secondary" onclick="clearAllScores()" style="margin-left: 8px;">
+                            清空所有
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 輸入模式切換 -->
+                <div class="form-row" style="justify-content: center; margin: 16px 0;">
+                    <div class="mode-switch">
+                        <button class="mode-btn active" id="singleModeBtn" onclick="switchMode('single')">
+                            單個輸入
+                        </button>
+                        <button class="mode-btn" id="batchModeBtn" onclick="switchMode('batch')">
+                            批量輸入
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 單個輸入提示 -->
+                <div class="single-input-notice" id="singleInputNotice">
+                    <span class="notice-text">💡 請為每位參賽者單獨輸入分數</span>
+                </div>
+
+                <!-- 批量輸入工具欄 -->
+                <div class="batch-toolbar" id="batchToolbar" style="display: none;">
+                    <div class="batch-controls">
+                        <span class="batch-label">批量操作：</span>
+                        <input type="number" id="batchValue" placeholder="輸入統一分數" class="batch-input">
+                        <button class="btn btn-primary" onclick="applyBatchScore()">應用到全部</button>
+                        <button class="btn btn-secondary" onclick="quickFill('0')">填充 0</button>
+                        <button class="btn btn-secondary" onclick="quickFill('1')">填充 1</button>
+                        <button class="btn btn-secondary" onclick="quickFill('10')">填充 10</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="table" id="participantsTable">
+                        <thead>
+                            <tr>
+                                <th>參賽者</th>
+                                <th>組別</th>
+                                <th>性別</th>
+                                <th id="scoreHeader">分數</th>
+                            </tr>
+                        </thead>
+                        <tbody id="participantsTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="loadingMessage" class="loading" style="display: none;">
+                載入中...
+            </div>
+
+            <div id="errorMessage" class="error" style="display: none;">
+            </div>
+
+            <div id="successMessage" class="success" style="display: none;">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentScorer = null;
+        let participants = [];
+        let scores = {};
+        let submittedScores = new Set();
+        let currentEvent = '';
+        let currentRound = 1;
+        let events = [];
+        let currentEventDetails = null;
+        let inputMode = 'single'; // 'single' 或 'batch'
+
+        // 頁面載入時初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+        });
+
+        async function initializePage() {
+            // 檢查是否已登入
+            const savedScorer = localStorage.getItem('scorerInfo');
+            if (!savedScorer) {
+                window.location.href = '/scorer.html';
+                return;
+            }
+
+            try {
+                currentScorer = JSON.parse(savedScorer);
+                console.log('載入的記分員信息:', currentScorer);
+                document.getElementById('userName').textContent = `${currentScorer.name} (${currentScorer.username})`;
+                
+                // 載入所有比賽項目
+                loadEvents();
+                
+                // 設置事件監聽器
+                document.getElementById('eventSelect').addEventListener('change', function() {
+                    currentEvent = this.value;
+                    currentEventDetails = events.find(e => e.name === currentEvent);
+                    updateRoundOptions();
+                    clearParticipants();
+                });
+                
+                document.getElementById('roundSelect').addEventListener('change', function() {
+                    currentRound = parseInt(this.value);
+                    clearParticipants();
+                });
+                
+            } catch (error) {
+                console.error('初始化失敗:', error);
+                localStorage.removeItem('scorerInfo');
+                window.location.href = '/scorer.html';
+            }
+        }
+
+        async function loadEvents() {
+            try {
+                const response = await fetch('/api/events');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    events = data.filter(event => event.is_active);
+                    populateEventSelect();
+                } else {
+                    showMessage('載入比賽項目失敗: ' + data.error, 'error');
+                }
+            } catch (error) {
+                console.error('載入比賽項目錯誤:', error);
+                showMessage('載入比賽項目失敗，請檢查網絡連接', 'error');
+            }
+        }
+
+        function populateEventSelect() {
+            const eventSelect = document.getElementById('eventSelect');
+            eventSelect.innerHTML = '<option value="">請選擇運動項目</option>';
+            
+            // 調試信息
+            console.log('記分員信息:', currentScorer);
+            console.log('分配的項目:', currentScorer?.assigned_events);
+            console.log('分配的項目類型:', typeof currentScorer?.assigned_events);
+            console.log('分配的項目長度:', currentScorer?.assigned_events?.length);
+            console.log('所有項目:', events);
+            
+            // 如果記分員有分配的項目，只顯示分配的項目
+            if (currentScorer && currentScorer.assigned_events && Array.isArray(currentScorer.assigned_events)) {
+                console.log('使用分配的項目過濾');
+                events.forEach(event => {
+                    console.log(`檢查項目: ${event.name}, 是否在分配列表中:`, currentScorer.assigned_events.includes(event.name));
+                    if (currentScorer.assigned_events.includes(event.name)) {
+                        const option = document.createElement('option');
+                        option.value = event.name;
+                        option.textContent = `${event.name} (${event.type})`;
+                        eventSelect.appendChild(option);
+                        console.log('添加項目:', event.name);
+                    }
+                });
+            } else {
+                console.log('顯示所有項目');
+                // 否則顯示所有項目
+                events.forEach(event => {
+                    const option = document.createElement('option');
+                    option.value = event.name;
+                    option.textContent = `${event.name} (${event.type})`;
+                    eventSelect.appendChild(option);
+                });
+            }
+        }
+
+        function updateRoundOptions() {
+            const roundSelect = document.getElementById('roundSelect');
+            const loadBtn = document.getElementById('loadBtn');
+            
+            if (!currentEventDetails) {
+                roundSelect.innerHTML = '<option value="1">初賽</option><option value="2">決賽</option>';
+                loadBtn.disabled = true;
+                return;
+            }
+
+            // 清空現有選項
+            roundSelect.innerHTML = '';
+            
+            const maxRounds = currentEventDetails.max_rounds || 2;
+            
+            if (currentEventDetails.is_final_only) {
+                // 直接決賽模式：只有決賽選項
+                const option = document.createElement('option');
+                option.value = '1';
+                option.textContent = '決賽';
+                roundSelect.appendChild(option);
+            } else {
+                // 初賽+決賽模式：初賽=1，決賽=2
+                const option1 = document.createElement('option');
+                option1.value = '1';
+                option1.textContent = '初賽';
+                roundSelect.appendChild(option1);
+                
+                const option2 = document.createElement('option');
+                option2.value = '2';
+                option2.textContent = '決賽';
+                roundSelect.appendChild(option2);
+            }
+            
+            // 設置默認輪次
+            let defaultRound;
+            if (currentEventDetails.is_final_only) {
+                // 直接決賽模式：默認選擇決賽（輪次1）
+                defaultRound = 1;
+            } else {
+                // 初賽+決賽模式：默認選擇初賽（輪次1）
+                defaultRound = 1;
+            }
+            roundSelect.value = defaultRound;
+            currentRound = defaultRound;
+            
+            loadBtn.disabled = false;
+        }
+
+        async function loadParticipants() {
+            if (!currentEvent || !currentEventDetails) {
+                showMessage('請先選擇運動項目', 'error');
+                return;
+            }
+
+            showLoading(true);
+            hideMessages();
+
+            try {
+                const response = await fetch('/api/participants');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // 根據比賽項目的組別和性別過濾參賽者
+                    const eventGroups = currentEventDetails.group_types.split(',').map(g => g.trim());
+                    const eventGenders = currentEventDetails.genders.split(',').map(g => g.trim());
+                    
+                    participants = data.filter(participant => {
+                        const participantGroup = getGroupDisplayName(participant);
+                        const groupMatch = eventGroups.includes(participantGroup);
+                        const genderMatch = eventGenders.includes(participant.gender);
+                        return groupMatch && genderMatch;
+                    });
+                    
+                    displayParticipants();
+                    showMessage(`成功載入 ${participants.length} 位參賽者`, 'success');
+                } else {
+                    showMessage('載入參賽者失敗: ' + data.error, 'error');
+                }
+            } catch (error) {
+                console.error('載入參賽者錯誤:', error);
+                showMessage('載入參賽者失敗，請檢查網絡連接', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayParticipants() {
+            const section = document.getElementById('participantsSection');
+            const title = document.getElementById('sectionTitle');
+            const tableBody = document.getElementById('participantsTableBody');
+            const scoreHeader = document.getElementById('scoreHeader');
+            const eventInfo = document.getElementById('eventInfo');
+            const eventDetails = document.getElementById('eventDetails');
+            
+            // 設置標題
+            const roundText = getRoundText(currentRound);
+            title.textContent = `${currentEvent} - ${roundText} (${participants.length} 位參賽者)`;
+            
+            // 顯示比賽項目信息
+            if (currentEventDetails) {
+                eventDetails.innerHTML = `
+                    比賽項目：${currentEventDetails.name} (${currentEventDetails.type}) 
+                    <span class="event-tag">${currentEventDetails.group_types}</span>
+                    <span class="event-tag">${currentEventDetails.genders}</span>
+                `;
+                eventInfo.style.display = 'block';
+            }
+            
+            // 設置分數標題
+            const unit = currentEventDetails?.calculation_unit || getEventUnit(currentEvent);
+            scoreHeader.textContent = `分數 (${unit})`;
+            
+            // 清空表格
+            tableBody.innerHTML = '';
+            
+            // 填充參賽者數據
+            participants.forEach(participant => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>
+                        <div style="font-weight: bold;">${participant.name}</div>
+                        <div style="font-size: 12px; color: #666;">
+                            ${participant.team_name} - ${getGroupDisplayName(participant)} - ${participant.gender}
+                        </div>
+                    </td>
+                    <td><span class="tag tag-blue">${getGroupDisplayName(participant)}</span></td>
+                    <td><span class="tag ${participant.gender === '男' ? 'tag-blue' : 'tag-pink'}">${participant.gender}</span></td>
+                    <td>
+                        <div class="score-input-with-unit">
+                            <input 
+                                type="number" 
+                                step="0.01" 
+                                class="score-input" 
+                                placeholder="輸入分數"
+                                data-participant-id="${participant.id}"
+                                onchange="updateScore(${participant.id}, this.value)"
+                                value="${scores[participant.id] || ''}"
+                                ${submittedScores.has(participant.id) ? 'disabled' : ''}
+                            >
+                            <span class="score-unit">${unit}</span>
+                        </div>
+                        ${submittedScores.has(participant.id) ? '<div class="submitted-tag">已提交</div>' : ''}
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            section.style.display = 'block';
+        }
+
+        function getRoundText(round) {
+            if (!currentEventDetails) {
+                return round === 1 ? '初賽' : '決賽';
+            }
+            
+            if (currentEventDetails.is_final_only) {
+                // 直接決賽模式：round=1 就是決賽
+                return '決賽';
+            } else {
+                // 初賽+決賽模式：初賽=1，決賽=2
+                if (round === 1) {
+                    return '初賽';
+                } else if (round === 2) {
+                    return '決賽';
+                } else {
+                    return `第${round}輪`;
+                }
+            }
+        }
+
+        function updateScore(participantId, value) {
+            if (value && value.trim() !== '') {
+                scores[participantId] = parseFloat(value);
+            } else {
+                delete scores[participantId];
+            }
+            updateSubmitButton();
+        }
+
+        function updateSubmitButton() {
+            const submitBtn = document.getElementById('submitBtn');
+            const scoreCount = document.getElementById('scoreCount');
+            const count = Object.keys(scores).length;
+            
+            if (scoreCount) {
+                scoreCount.textContent = count;
+            }
+            if (submitBtn) {
+                submitBtn.disabled = count === 0;
+            }
+        }
+
+        async function submitScores() {
+            const scoreEntries = Object.entries(scores);
+            
+            if (scoreEntries.length === 0) {
+                showMessage('請至少輸入一個分數', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            if (!submitBtn) {
+                showMessage('找不到提交按鈕，請重新載入頁面', 'error');
+                return;
+            }
+            submitBtn.disabled = true;
+            submitBtn.textContent = '提交中...';
+
+            try {
+                const scoreData = scoreEntries.map(([participantId, score]) => ({
+                    participant_id: parseInt(participantId),
+                    event_name: currentEvent,
+                    round: currentRound,
+                    score: score
+                }));
+
+                console.log('提交的分數數據:', scoreData);
+                console.log('API 請求 URL:', '/api/scores/batch');
+
+                const response = await fetch('/api/scores/batch', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ scores: scoreData })
+                });
+
+                console.log('API 響應狀態:', response.status);
+                console.log('API 響應:', response);
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage(`成功提交 ${scoreEntries.length} 個分數`, 'success');
+                    
+                    // 標記已提交的分數
+                    scoreEntries.forEach(([participantId]) => {
+                        submittedScores.add(parseInt(participantId));
+                    });
+                    
+                    // 清空已提交的分數
+                    scoreEntries.forEach(([participantId]) => {
+                        delete scores[participantId];
+                    });
+                    
+                    // 重新顯示表格
+                    displayParticipants();
+                    updateSubmitButton();
+                } else {
+                    showMessage('提交失敗: ' + data.error, 'error');
+                }
+            } catch (error) {
+                console.error('提交分數錯誤:', error);
+                console.error('錯誤詳情:', error.message);
+                console.error('錯誤堆棧:', error.stack);
+                showMessage(`提交失敗: ${error.message}`, 'error');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = `提交分數 (${Object.keys(scores).length})`;
+                }
+            }
+        }
+
+        function getEventUnit(eventName) {
+            switch (eventName) {
+                case '來回跑': return '秒';
+                case '立定跳遠': return '厘米';
+                case '火箭投擲': return '米';
+                case '硬地滾球': return 'pts';
+                default: return '';
+            }
+        }
+
+        function getGroupDisplayName(participant) {
+            // 優先使用 group_name，如果為 null 或 undefined，則使用 group_type
+            if (participant.group_name && participant.group_name !== 'null') {
+                return participant.group_name;
+            } else if (participant.group_type && participant.group_type !== 'null') {
+                return participant.group_type;
+            } else {
+                return '未分組';
+            }
+        }
+
+
+        function clearAllScores() {
+            scores = {};
+            displayParticipants();
+            updateSubmitButton();
+            showMessage('已清空所有分數', 'success');
+        }
+
+        function clearParticipants() {
+            participants = [];
+            scores = {};
+            submittedScores.clear();
+            document.getElementById('participantsSection').style.display = 'none';
+            updateSubmitButton();
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingMessage').style.display = show ? 'block' : 'none';
+        }
+
+        function showMessage(message, type) {
+            hideMessages();
+            const messageElement = document.getElementById(type + 'Message');
+            messageElement.textContent = message;
+            messageElement.style.display = 'block';
+            
+            // 3秒後自動隱藏成功消息
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageElement.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function hideMessages() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        function logout() {
+            localStorage.removeItem('scorerInfo');
+            window.location.href = '/scorer.html';
+        }
+
+        // 切換輸入模式
+        function switchMode(mode) {
+            inputMode = mode;
+            
+            // 更新按鈕狀態
+            document.getElementById('singleModeBtn').classList.toggle('active', mode === 'single');
+            document.getElementById('batchModeBtn').classList.toggle('active', mode === 'batch');
+            
+            // 顯示/隱藏相應的界面元素
+            document.getElementById('singleInputNotice').style.display = mode === 'single' ? 'block' : 'none';
+            document.getElementById('batchToolbar').style.display = mode === 'batch' ? 'block' : 'none';
+        }
+
+        // 批量應用分數
+        function applyBatchScore() {
+            const batchValue = document.getElementById('batchValue').value;
+            if (!batchValue || batchValue.trim() === '') {
+                showMessage('請輸入統一分數', 'error');
+                return;
+            }
+
+            const score = parseFloat(batchValue);
+            if (isNaN(score)) {
+                showMessage('請輸入有效的數字', 'error');
+                return;
+            }
+
+            // 為所有參賽者設置相同分數
+            participants.forEach(participant => {
+                scores[participant.id] = score;
+            });
+
+            // 重新顯示表格
+            displayParticipants();
+            updateSubmitButton();
+            
+            showMessage(`已為所有參賽者設置分數: ${score}`, 'success');
+        }
+
+        // 快速填充
+        function quickFill(value) {
+            document.getElementById('batchValue').value = value;
+            applyBatchScore();
+        }
+    </script>
+</body>
+</html>

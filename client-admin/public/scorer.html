@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>計分員登入 - 懷智運動會</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 48px;
+            color: #1890ff;
+            margin-bottom: 16px;
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1890ff;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 32px;
+            font-size: 16px;
+        }
+        
+        .login-form {
+            text-align: left;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+        
+        .login-btn {
+            width: 100%;
+            background: #1890ff;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .login-btn:hover {
+            background: #40a9ff;
+        }
+        
+        .login-btn:disabled {
+            background: #d9d9d9;
+            cursor: not-allowed;
+        }
+        
+        .error-message {
+            color: #ff4d4f;
+            font-size: 14px;
+            margin-top: 8px;
+            text-align: center;
+        }
+        
+        .success-message {
+            color: #52c41a;
+            font-size: 14px;
+            margin-top: 8px;
+            text-align: center;
+        }
+        
+        .loading {
+            display: none;
+            color: #1890ff;
+            margin-top: 8px;
+        }
+        
+        .footer {
+            margin-top: 32px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+            color: #999;
+            font-size: 14px;
+        }
+        
+        .back-link {
+            color: #1890ff;
+            text-decoration: none;
+            margin-top: 16px;
+            display: inline-block;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🏆</div>
+        <div class="title">記分員登入</div>
+        <div class="subtitle">請輸入您的記分員賬戶信息</div>
+        
+        <form class="login-form" id="loginForm">
+            <div class="form-group">
+                <label class="form-label" for="username">用戶名</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    class="form-input" 
+                    placeholder="請輸入用戶名"
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="password">密碼</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-input" 
+                    placeholder="請輸入密碼"
+                    required
+                >
+            </div>
+            
+            <button type="submit" class="login-btn" id="loginBtn">
+                登入
+            </button>
+            
+            <div class="loading" id="loading">
+                登入中...
+            </div>
+            
+            <div id="message"></div>
+        </form>
+        
+        <div class="footer">
+            <div>如有問題，請聯繫管理員</div>
+            <a href="/admin" class="back-link">返回管理後台</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const loading = document.getElementById('loading');
+            const message = document.getElementById('message');
+            
+            // 顯示載入狀態
+            loginBtn.disabled = true;
+            loginBtn.textContent = '登入中...';
+            loading.style.display = 'block';
+            message.innerHTML = '';
+            
+            try {
+                const response = await fetch('/api/scorer/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // 登入成功，保存記分員信息
+                    localStorage.setItem('scorerInfo', JSON.stringify(data.scorer));
+                    
+                    message.innerHTML = '<div class="success-message">登入成功！正在跳轉...</div>';
+                    
+                    // 跳轉到記分員工作台
+                    setTimeout(() => {
+                        window.location.href = '/scorer-dashboard.html';
+                    }, 1000);
+                } else {
+                    message.innerHTML = `<div class="error-message">${data.message}</div>`;
+                }
+            } catch (error) {
+                console.error('登入錯誤:', error);
+                message.innerHTML = '<div class="error-message">登入失敗，請檢查網絡連接</div>';
+            } finally {
+                // 恢復按鈕狀態
+                loginBtn.disabled = false;
+                loginBtn.textContent = '登入';
+                loading.style.display = 'none';
+            }
+        });
+        
+        // 檢查是否已經登入
+        const savedScorer = localStorage.getItem('scorerInfo');
+        if (savedScorer) {
+            try {
+                const scorerData = JSON.parse(savedScorer);
+                // 如果已經登入，直接跳轉到工作台
+                window.location.href = '/scorer-dashboard.html';
+            } catch (error) {
+                localStorage.removeItem('scorerInfo');
+            }
+        }
+    </script>
+</body>
+</html>
