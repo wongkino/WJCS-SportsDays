@@ -7,3 +7,8 @@ README.md
 .nyc_output
 coverage
 .DS_Store
+*.db
+*.sqlite
+*.sqlite3
+uploads
+data

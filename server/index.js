@@ -38,7 +38,7 @@ app.get('/api/participants/template', (req, res) => {
 });
 
 // 資料庫初始化
-const dbPath = path.join(__dirname, 'sportday.db');
+const dbPath = process.env.DB_PATH || path.join(__dirname, 'sportday.db');
 const db = new sqlite3.Database(dbPath);
 
 // 建立資料表
