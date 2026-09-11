@@ -1,6 +1,6 @@
 {
   "name": "wjcs-sportsdays-public",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "dependencies": {
     "antd": "^5.12.0",
