@@ -42,7 +42,7 @@ Image：`ghcr.io/wongkino/wjcs-sportsdays:latest`
 - 網站：`3200:3200`
 - MariaDB：只在 stack 內給 app 使用，不對外開放 port
 
-推送到 `main` 後，GitHub Actions 會建置並推送 image。
+推送到 `main` 後，GitHub Actions 會建置並推送 image；每次成功 build 會自動把版本號 patch +1（例如 `1.0.0` → `1.0.1`），並打上對應的 GHCR tag。
 
 ## 本機開發
 
