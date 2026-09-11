@@ -1,8 +1,0 @@
-{
-  "short_name": "運動會後台",
-  "name": "懷智運動會 - 管理後台",
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#1890ff",
-  "background_color": "#ffffff"
-}

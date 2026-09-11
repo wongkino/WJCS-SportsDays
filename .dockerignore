@@ -12,7 +12,6 @@
 **/.DS_Store
 **/._*
 **/npm-debug.log*
-data
 db
 server/uploads
 uploads

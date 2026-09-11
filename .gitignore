@@ -27,8 +27,6 @@ Thumbs.db
 
 server/uploads/
 uploads/
-data/*
-!data/.gitkeep
 db/
 !db/.gitkeep
 
