@@ -1,6 +1,6 @@
 {
   "name": "wjcs-sportsdays-server",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "WJCS-SportsDays 後端",
   "main": "index.js",
   "scripts": {
