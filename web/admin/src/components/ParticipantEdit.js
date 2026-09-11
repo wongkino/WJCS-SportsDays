@@ -60,7 +60,7 @@ const ParticipantEdit = ({ participants, loading, groups, onGroupUpdated }) => {
       key: 'team_name',
       render: (teamName) => (
         <span style={{ 
-          color: teamName ? '#1890ff' : '#999',
+          color: teamName ? 'var(--accent)' : 'var(--text-secondary)',
           fontWeight: 'bold'
         }}>
           {teamName || '未填寫'}
@@ -84,7 +84,7 @@ const ParticipantEdit = ({ participants, loading, groups, onGroupUpdated }) => {
       key: 'gender',
       render: (gender) => (
         <span style={{ 
-          color: gender === '男' ? '#1890ff' : '#eb2f96',
+          color: gender === '男' ? 'var(--accent)' : '#bf5af2',
           fontWeight: 'bold'
         }}>
           {gender}
@@ -97,7 +97,7 @@ const ParticipantEdit = ({ participants, loading, groups, onGroupUpdated }) => {
       key: 'group_name',
       render: (groupName) => (
         <span style={{ 
-          color: groupName ? '#722ed1' : '#999',
+          color: groupName ? 'var(--text-primary)' : 'var(--text-secondary)',
           fontWeight: 'bold'
         }}>
           {groupName || '未分組'}

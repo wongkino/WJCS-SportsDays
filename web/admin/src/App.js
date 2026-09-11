@@ -158,28 +158,12 @@ function App() {
     <div className="app-container">
       <div className="content-container">
         <div className="header">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ flex: 1, textAlign: 'center' }}>
-              <h1 style={{ 
-                margin: 0, 
-                fontSize: '32px', 
-                fontWeight: 'bold',
-                color: '#000000',
-                textShadow: '2px 2px 4px rgba(255,255,255,0.3)'
-              }}>
-                懷智運動會計分系統後台
-              </h1>
-              <p style={{ 
-                margin: '8px 0 0 0', 
-                fontSize: '16px', 
-                fontWeight: 'bold',
-                color: '#000000',
-                textShadow: '1px 1px 2px rgba(255,255,255,0.3)'
-              }}>
-                運動會管理系統
-              </p>
+          <div className="header-bar">
+            <div className="header-copy">
+              <h1>懷智運動會計分系統後台</h1>
+              <p>運動會管理系統</p>
             </div>
-            <Space style={{ marginTop: 8 }}>
+            <Space wrap>
               <Button 
                 type="primary"
                 icon={<SettingOutlined />}

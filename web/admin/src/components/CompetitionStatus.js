@@ -94,7 +94,7 @@ const CompetitionStatus = () => {
     <div style={{ padding: '20px', maxWidth: '1000px', margin: '0 auto' }}>
       <Card>
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <Title level={2} style={{ color: '#1890ff' }}>
+          <Title level={2}>
             <TrophyOutlined /> 比賽狀態管理
           </Title>
           <Text type="secondary">按項目獨立控制比賽狀態，影響名次的顯示</Text>
@@ -102,20 +102,15 @@ const CompetitionStatus = () => {
 
         {/* 整體狀態概覽 */}
         <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <div style={{ 
-            padding: '20px', 
-            backgroundColor: finishedCount === totalCount ? '#f6ffed' : '#fff7e6',
-            border: `2px solid ${finishedCount === totalCount ? '#52c41a' : '#faad14'}`,
-            borderRadius: '8px'
-          }}>
+          <div className={`status-banner ${finishedCount === totalCount ? 'is-done' : 'is-live'}`}>
             <div style={{ marginBottom: '16px' }}>
               {finishedCount === totalCount ? (
-                <PauseCircleOutlined style={{ fontSize: '48px', color: '#52c41a' }} />
+                <PauseCircleOutlined style={{ fontSize: 48, color: 'var(--color-success)' }} />
               ) : (
-                <PlayCircleOutlined style={{ fontSize: '48px', color: '#faad14' }} />
+                <PlayCircleOutlined style={{ fontSize: 48, color: 'var(--color-warning)' }} />
               )}
             </div>
-            <Title level={3} style={{ color: finishedCount === totalCount ? '#52c41a' : '#faad14', margin: 0 }}>
+            <Title level={3} style={{ margin: 0 }}>
               {finishedCount === totalCount ? '所有比賽已完結' : '比賽進行中'}
             </Title>
             <Text type="secondary" style={{ fontSize: '16px' }}>
@@ -157,16 +152,15 @@ const CompetitionStatus = () => {
               <Col xs={24} sm={12} lg={8} key={event.event_id}>
                 <Card 
                   size="small"
-                  style={{ 
-                    border: `2px solid ${event.is_finished ? '#52c41a' : '#faad14'}`,
-                    backgroundColor: event.is_finished ? '#f6ffed' : '#fff7e6'
+                  style={{
+                    borderColor: event.is_finished ? 'var(--color-success)' : 'var(--color-warning)'
                   }}
                 >
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ marginBottom: '12px' }}>
                       <TrophyOutlined style={{ 
                         fontSize: '24px', 
-                        color: event.is_finished ? '#52c41a' : '#faad14' 
+                        color: event.is_finished ? 'var(--color-success)' : 'var(--color-warning)' 
                       }} />
                     </div>
                     <Title level={5} style={{ margin: '0 0 8px 0' }}>

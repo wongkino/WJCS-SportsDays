@@ -123,7 +123,7 @@ const ParticipantGroupManagement = ({ onGroupUpdated }) => {
       key: 'name',
       render: (text, record) => (
         <Space>
-          <TeamOutlined style={{ color: '#1890ff' }} />
+          <TeamOutlined style={{ color: 'var(--accent)' }} />
           <span style={{ fontWeight: 'bold' }}>{text}</span>
         </Space>
       ),
@@ -139,8 +139,8 @@ const ParticipantGroupManagement = ({ onGroupUpdated }) => {
       key: 'participant_count',
       render: (_, record) => (
         <Space>
-          <UserOutlined style={{ color: '#52c41a' }} />
-          <span style={{ fontWeight: 'bold', color: '#52c41a' }}>
+          <UserOutlined style={{ color: 'var(--color-success)' }} />
+          <span style={{ fontWeight: 'bold', color: 'var(--color-success)' }}>
             {getGroupParticipantCount(record.id)} 人
           </span>
         </Space>
@@ -223,7 +223,7 @@ const ParticipantGroupManagement = ({ onGroupUpdated }) => {
               title="總組別數"
               value={totalGroups}
               prefix={<TeamOutlined />}
-              valueStyle={{ color: '#1890ff' }}
+              valueStyle={{ color: 'var(--accent)' }}
             />
           </Card>
         </Col>
@@ -233,7 +233,7 @@ const ParticipantGroupManagement = ({ onGroupUpdated }) => {
               title="啟用組別"
               value={activeGroups}
               prefix={<TeamOutlined />}
-              valueStyle={{ color: '#52c41a' }}
+              valueStyle={{ color: 'var(--color-success)' }}
             />
           </Card>
         </Col>
@@ -243,7 +243,7 @@ const ParticipantGroupManagement = ({ onGroupUpdated }) => {
               title="總參賽者"
               value={totalParticipants}
               prefix={<UserOutlined />}
-              valueStyle={{ color: '#722ed1' }}
+              valueStyle={{ color: 'var(--text-primary)' }}
             />
           </Card>
         </Col>
@@ -291,7 +291,7 @@ const ParticipantGroupManagement = ({ onGroupUpdated }) => {
       <Modal
         title={
           <Space>
-            <TeamOutlined style={{ color: '#1890ff' }} />
+            <TeamOutlined style={{ color: 'var(--accent)' }} />
             <span>{editingGroup ? '編輯組別' : '新增組別'}</span>
           </Space>
         }

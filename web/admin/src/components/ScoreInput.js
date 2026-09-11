@@ -368,7 +368,7 @@ const ScoreInput = ({ participants, events, onScoreAdded, loading }) => {
                 <Text style={{ 
                   fontSize: '18px', 
                   fontWeight: 'bold', 
-                  color: '#1890ff',
+                  color: 'var(--accent)',
                   marginTop: 4,
                   display: 'block'
                 }}>

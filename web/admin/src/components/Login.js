@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Card, message, Typography, Space } from 'antd';
+import { Form, Input, Button, Card, message, Typography } from 'antd';
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const Login = ({ onLogin }) => {
   const [loading, setLoading] = useState(false);
@@ -37,28 +37,11 @@ const Login = ({ onLogin }) => {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-    }}>
-      <Card
-        style={{
-          width: 400,
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-          borderRadius: '12px'
-        }}
-        bodyStyle={{ padding: '40px' }}
-      >
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <Title level={2} style={{ color: '#1890ff', marginBottom: 8 }}>
-            運動會計分系統
-          </Title>
-          <Text type="secondary" style={{ fontSize: '16px' }}>
-            管理員登入
-          </Text>
+    <div className="login-page">
+      <Card className="login-card" bodyStyle={{ padding: 40 }}>
+        <div className="page-heading">
+          <h2>運動會計分系統</h2>
+          <p>管理員登入</p>
         </div>
 
         <Form
@@ -72,9 +55,8 @@ const Login = ({ onLogin }) => {
             rules={[{ required: true, message: '請輸入用戶名' }]}
           >
             <Input
-              prefix={<UserOutlined style={{ color: '#bfbfbf' }} />}
+              prefix={<UserOutlined style={{ color: 'var(--text-secondary)' }} />}
               placeholder="用戶名"
-              style={{ borderRadius: '8px' }}
             />
           </Form.Item>
 
@@ -83,9 +65,8 @@ const Login = ({ onLogin }) => {
             rules={[{ required: true, message: '請輸入密碼' }]}
           >
             <Input.Password
-              prefix={<LockOutlined style={{ color: '#bfbfbf' }} />}
+              prefix={<LockOutlined style={{ color: 'var(--text-secondary)' }} />}
               placeholder="密碼"
-              style={{ borderRadius: '8px' }}
             />
           </Form.Item>
 
@@ -94,13 +75,8 @@ const Login = ({ onLogin }) => {
               type="primary"
               htmlType="submit"
               loading={loading}
-              style={{
-                width: '100%',
-                height: '48px',
-                borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: 'bold'
-              }}
+              block
+              size="large"
             >
               登入
             </Button>
@@ -108,7 +84,7 @@ const Login = ({ onLogin }) => {
         </Form>
 
         <div style={{ textAlign: 'center', marginTop: 24 }}>
-          <Text type="secondary" style={{ fontSize: '12px' }}>
+          <Text type="secondary" style={{ fontSize: 13 }}>
             請聯繫系統管理員獲取登入憑證
           </Text>
         </div>

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Typography, Table, Tag, Spin, Button } from 'antd';
+import { Card, Row, Col, Table, Tag, Spin, Button } from 'antd';
 import { TrophyOutlined, ReloadOutlined } from '@ant-design/icons';
 import axios from 'axios';
-
-const { Title, Text } = Typography;
 
 const PublicView = () => {
   const [events, setEvents] = useState([]);
@@ -59,15 +57,6 @@ const PublicView = () => {
 
   const isEventFinished = (eventId) => {
     return competitionStatus[eventId]?.is_finished || false;
-  };
-
-  const getGroupColor = (groupType) => {
-    const colors = {
-      '工場及社區組': { color: '#1890ff', bg: 'linear-gradient(135deg, #e6f7ff, #f0f9ff)', border: '#91d5ff' },
-      '展能組': { color: '#52c41a', bg: 'linear-gradient(135deg, #f6ffed, #f0fff0)', border: '#b7eb8f' },
-      '測試組別': { color: '#722ed1', bg: 'linear-gradient(135deg, #f9f0ff, #efdbff)', border: '#d3adf7' }
-    };
-    return colors[groupType] || { color: '#fa8c16', bg: 'linear-gradient(135deg, #fff7e6, #fff2e8)', border: '#ffd591' };
   };
 
   const getEventResults = () => {
@@ -161,18 +150,7 @@ const PublicView = () => {
       key: 'rank',
       width: 60,
       render: (text, record, index) => (
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          width: '30px',
-          height: '30px',
-          borderRadius: '50%',
-          background: index === 0 ? '#faad14' : index === 1 ? '#d9d9d9' : '#cd7f32',
-          color: 'white',
-          fontWeight: 'bold',
-          fontSize: '14px'
-        }}>
+        <div className={`rank-chip is-${index + 1}`}>
           {index + 1}
         </div>
       )
@@ -191,7 +169,7 @@ const PublicView = () => {
             <div style={{ fontWeight: 'bold', fontSize: '14px' }}>
               {teamName && teamName !== participantName ? `${teamName} - ${participantName}` : participantName}
             </div>
-            <div style={{ fontSize: '12px', color: '#666' }}>
+            <div className="muted">
               {groupType} - {gender}
             </div>
           </div>
@@ -220,35 +198,24 @@ const PublicView = () => {
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
+      <div className="public-state">
         <Spin size="large" />
-        <div style={{ marginTop: '16px' }}>載入中...</div>
+        <div style={{ marginTop: 16 }}>載入中...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
-        <div style={{ color: '#ff4d4f', fontSize: '16px' }}>{error}</div>
-      </div>
+      <div className="public-state is-error">{error}</div>
     );
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
-      <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-        <Title level={1} style={{ 
-          fontSize: '48px',
-          color: '#1890ff', 
-          marginBottom: '12px',
-          textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
-        }}>
-          懷智運動會
-        </Title>
-        <Text type="secondary" style={{ fontSize: '20px' }}>
-          即時排名與結果查詢
-        </Text>
+    <div className="public-page">
+      <div className="public-hero">
+        <h1>懷智運動會</h1>
+        <div className="subtitle">即時排名與結果查詢</div>
       </div>
 
       {/* 按組別和性別分層顯示結果 */}
@@ -273,26 +240,13 @@ const PublicView = () => {
           
           // 如果比賽已完結但沒有數據，則顯示提示
           return (
-            <div key={event.id} style={{ marginBottom: '40px' }}>
-              <div style={{ 
-                fontSize: '32px', 
-                fontWeight: 'bold', 
-                marginBottom: '28px',
-                textAlign: 'center',
-                color: '#1890ff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <TrophyOutlined style={{ marginRight: '16px', fontSize: '32px' }} />
+            <div key={event.id} className="event-block">
+              <div className="event-heading">
+                <TrophyOutlined />
                 {event.name}
-                <Tag color="blue" style={{ marginLeft: '16px', fontSize: '16px' }}>{event.type}</Tag>
+                <Tag color="blue">{event.type}</Tag>
               </div>
-              <div style={{ textAlign: 'center', padding: '40px', backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
-                <Text type="secondary" style={{ fontSize: '18px' }}>
-                  比賽已完結，暫無結果數據
-                </Text>
-              </div>
+              <div className="empty-panel">比賽已完結，暫無結果數據</div>
             </div>
           );
         }
@@ -300,46 +254,23 @@ const PublicView = () => {
         // 如果該項目比賽未完結，顯示提示訊息
         if (!isEventFinished(event.id)) {
           return (
-            <div key={event.id} style={{ marginBottom: '40px' }}>
-              <div style={{ 
-                fontSize: '32px', 
-                fontWeight: 'bold', 
-                marginBottom: '28px',
-                textAlign: 'center',
-                color: '#1890ff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <TrophyOutlined style={{ marginRight: '16px', fontSize: '32px' }} />
+            <div key={event.id} className="event-block">
+              <div className="event-heading">
+                <TrophyOutlined />
                 {event.name}
-                <Tag color="blue" style={{ marginLeft: '16px', fontSize: '16px' }}>{event.type}</Tag>
+                <Tag color="blue">{event.type}</Tag>
               </div>
-              <div style={{ textAlign: 'center', padding: '40px', backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
-                <Text type="secondary" style={{ fontSize: '18px' }}>
-                  該項目比賽尚未完結，名次將在比賽結束後公佈
-                </Text>
-              </div>
+              <div className="empty-panel">該項目比賽尚未完結，名次將在比賽結束後公佈</div>
             </div>
           );
         }
         
         return (
-          <div key={event.id} style={{ marginBottom: '40px' }}>
-            {/* 比賽項目標題 */}
-            <div style={{ 
-              fontSize: '32px', 
-              fontWeight: 'bold', 
-              marginBottom: '28px',
-              textAlign: 'center',
-              color: '#1890ff',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <TrophyOutlined style={{ marginRight: '16px', fontSize: '32px' }} />
+          <div key={event.id} className="event-block">
+            <div className="event-heading">
+              <TrophyOutlined />
               {event.name}
-              <Tag color="blue" style={{ marginLeft: '16px', fontSize: '16px' }}>{event.type}</Tag>
+              <Tag color="blue">{event.type}</Tag>
             </div>
             
             {/* 按組別分區塊 */}
@@ -354,21 +285,7 @@ const PublicView = () => {
               return (
                 <div key={groupType} style={{ marginBottom: '32px' }}>
                   {/* 組別標題 */}
-                  <div style={{ 
-                    fontSize: '28px', 
-                    fontWeight: 'bold', 
-                    marginBottom: '20px',
-                    textAlign: 'center',
-                    color: groupType === '工場及社區組' ? '#1890ff' : '#52c41a',
-                    background: groupType === '工場及社區組' 
-                      ? 'linear-gradient(135deg, #e6f7ff, #f0f9ff)' 
-                      : 'linear-gradient(135deg, #f6ffed, #f0fff0)',
-                    padding: '16px',
-                    borderRadius: '10px',
-                    border: groupType === '工場及社區組' 
-                      ? '2px solid #91d5ff' 
-                      : '2px solid #b7eb8f'
-                  }}>
+                  <div className="group-banner">
                     {groupType}
                   </div>
                   
@@ -382,48 +299,26 @@ const PublicView = () => {
                       
                       return (
                         <Col xs={24} lg={12} key={`${event.id}-${groupType}-${gender}`}>
-                          <Card 
-                            title={
-                              <div style={{ 
-                                textAlign: 'center', 
-                                fontSize: '22px', 
-                                fontWeight: 'bold',
-                                color: groupType === '工場及社區組' ? '#1890ff' : '#52c41a'
-                              }}>
-                                {gender}
-                              </div>
-                            }
-                            style={{ 
-                              minHeight: '400px',
-                              background: groupType === '工場及社區組' ? '#f8f9fa' : '#f6ffed'
-                            }}
+                          <Card
+                            className="gender-card"
+                            title={gender}
                           >
                             
                             
                             {/* 決賽排名 */}
                             {genderData.final && (
                               <div>
-                                <div style={{ 
-                                  fontSize: '18px', 
-                                  fontWeight: 'bold', 
-                                  marginBottom: '16px',
-                                  color: '#52c41a',
-                                  textAlign: 'center'
-                                }}>
-                                  🏆 決賽排名
-                                </div>
-                                <div style={{ textAlign: 'center' }}>
+                                <div className="section-label">決賽排名</div>
+                                <div>
                                   {genderData.final.champion && (
-                                    <div style={{ marginBottom: '12px' }}>
-                                      <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#faad14', marginBottom: '6px' }}>
-                                        🥇 冠軍
-                                      </div>
-                                      <div style={{ fontSize: '20px', fontWeight: 'bold' }}>
+                                    <div className="podium is-gold">
+                                      <div className="podium-place">冠軍</div>
+                                      <div className="podium-name">
                                         {genderData.final.champion.team_name && genderData.final.champion.team_name !== genderData.final.champion.participant_name 
                                           ? `${genderData.final.champion.team_name} - ${genderData.final.champion.participant_name}` 
                                           : genderData.final.champion.participant_name}
                                       </div>
-                                      <div style={{ fontSize: '18px', color: '#666' }}>
+                                      <div className="podium-score">
                                         {genderData.final.champion.score}
                                         {genderData.final.champion.event_name === '來回跑' ? '秒' :
                                          genderData.final.champion.event_name === '立定跳遠' ? '厘米' :
@@ -434,16 +329,14 @@ const PublicView = () => {
                                   )}
                                   
                                   {genderData.final.runnerUp && (
-                                    <div style={{ marginBottom: '12px' }}>
-                                      <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#d9d9d9', marginBottom: '6px' }}>
-                                        🥈 亞軍
-                                      </div>
-                                      <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                                    <div className="podium is-silver">
+                                      <div className="podium-place">亞軍</div>
+                                      <div className="podium-name">
                                         {genderData.final.runnerUp.team_name && genderData.final.runnerUp.team_name !== genderData.final.runnerUp.participant_name 
                                           ? `${genderData.final.runnerUp.team_name} - ${genderData.final.runnerUp.participant_name}` 
                                           : genderData.final.runnerUp.participant_name}
                                       </div>
-                                      <div style={{ fontSize: '16px', color: '#666' }}>
+                                      <div className="podium-score">
                                         {genderData.final.runnerUp.score}
                                         {genderData.final.runnerUp.event_name === '來回跑' ? '秒' :
                                          genderData.final.runnerUp.event_name === '立定跳遠' ? '厘米' :
@@ -454,16 +347,14 @@ const PublicView = () => {
                                   )}
                                   
                                   {genderData.final.thirdPlace && (
-                                    <div>
-                                      <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#cd7f32', marginBottom: '6px' }}>
-                                        🥉 季軍
-                                      </div>
-                                      <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                                    <div className="podium is-bronze">
+                                      <div className="podium-place">季軍</div>
+                                      <div className="podium-name">
                                         {genderData.final.thirdPlace.team_name && genderData.final.thirdPlace.team_name !== genderData.final.thirdPlace.participant_name 
                                           ? `${genderData.final.thirdPlace.team_name} - ${genderData.final.thirdPlace.participant_name}` 
                                           : genderData.final.thirdPlace.participant_name}
                                       </div>
-                                      <div style={{ fontSize: '16px', color: '#666' }}>
+                                      <div className="podium-score">
                                         {genderData.final.thirdPlace.score}
                                         {genderData.final.thirdPlace.event_name === '來回跑' ? '秒' :
                                          genderData.final.thirdPlace.event_name === '立定跳遠' ? '厘米' :
@@ -479,15 +370,7 @@ const PublicView = () => {
                             {/* 決賽入圍者 */}
                             {genderData.finalQualifiers && (
                               <div>
-                                <div style={{ 
-                                  fontSize: '18px', 
-                                  fontWeight: 'bold', 
-                                  marginBottom: '16px',
-                                  color: '#722ed1',
-                                  textAlign: 'center'
-                                }}>
-                                  🎯 決賽入圍者 (初賽首8名)
-                                </div>
+                                <div className="section-label">決賽入圍者（初賽首 8 名）</div>
                                 <Table
                                   columns={resultColumns}
                                   dataSource={genderData.finalQualifiers.results}
@@ -510,21 +393,19 @@ const PublicView = () => {
         );
       }) : null}
 
-      <div style={{ marginTop: '30px', textAlign: 'center' }}>
+      <div className="public-footer">
         <Button 
           type="primary" 
           icon={<ReloadOutlined />} 
           onClick={fetchData}
           loading={loading}
           size="large"
-          style={{ marginBottom: '16px' }}
         >
           手動更新資料
         </Button>
-        <br />
-        <Text type="secondary" style={{ fontSize: '16px' }}>
+        <div className="muted" style={{ marginTop: 16 }}>
           {lastUpdateTime ? `最後更新時間: ${lastUpdateTime.toLocaleString('zh-TW')}` : '尚未載入資料'}
-        </Text>
+        </div>
       </div>
     </div>
   );

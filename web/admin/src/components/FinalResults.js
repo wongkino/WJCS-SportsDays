@@ -106,14 +106,12 @@ const FinalResults = ({ loading }) => {
 
   return (
     <div>
-      <div style={{ textAlign: 'center', marginBottom: 30 }}>
-        <h2 style={{ color: '#1890ff', fontSize: '1.8rem' }}>
+      <div className="page-heading">
+        <h2>
           <TrophyOutlined style={{ marginRight: 8 }} />
           決賽入圍者
         </h2>
-        <p style={{ color: '#666', fontSize: '1.1rem' }}>
-          各項目決賽參賽者及成績排名
-        </p>
+        <p>各項目決賽參賽者及成績排名</p>
       </div>
 
       <Card style={{ marginBottom: 24 }}>
@@ -143,7 +141,7 @@ const FinalResults = ({ loading }) => {
             key={key}
             title={
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <TrophyOutlined style={{ marginRight: 8, color: '#1890ff' }} />
+                <TrophyOutlined style={{ marginRight: 8, color: 'var(--accent)' }} />
                 <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
                   {eventName}
                 </span>
@@ -158,7 +156,6 @@ const FinalResults = ({ loading }) => {
               </div>
             }
             style={{ marginBottom: 24 }}
-            headStyle={{ background: '#f0f8ff' }}
           >
             {qualifiers.length === 0 ? (
               <Empty description="尚無此組別的決賽結果" />
@@ -169,16 +166,16 @@ const FinalResults = ({ loading }) => {
                     key={result.id}
                     className="rank-card"
                     style={{
-                      background: index === 0 ? '#fff9e6' : 'white',
-                      borderLeft: index === 0 ? '4px solid #ffd700' : '1px solid #e8e8e8'
+                      background: index === 0 ? 'rgba(201,162,39,0.08)' : undefined,
+                      borderLeft: index === 0 ? '4px solid var(--gold)' : '1px solid var(--separator)'
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <span 
                         className="rank-number"
                         style={{
-                          background: index === 0 ? '#ffd700' : '#1890ff',
-                          color: index === 0 ? '#8b6914' : 'white'
+                          background: index === 0 ? 'var(--gold)' : 'var(--accent)',
+                          color: index === 0 ? '#1d1d1f' : '#fff'
                         }}
                       >
                         {index + 1}
@@ -187,7 +184,7 @@ const FinalResults = ({ loading }) => {
                         <div className="participant-name">
                           <UserOutlined style={{ marginRight: 8 }} />
                           {result.team_name && result.team_name !== result.participant_name ? `${result.team_name} - ${result.participant_name}` : result.participant_name}
-                          {index === 0 && <span style={{ color: '#ffd700', marginLeft: 8 }}>🏆</span>}
+                          {index === 0 && <span style={{ color: 'var(--gold)', marginLeft: 8 }}>冠軍</span>}
                         </div>
                         <div className="participant-details">
                           {result.group_type} - {result.gender}

@@ -94,31 +94,24 @@ const Winners = ({ loading }) => {
 
   return (
     <div>
-      <div style={{ textAlign: 'center', marginBottom: 40 }}>
-        <h2 style={{ color: '#ffd700', fontSize: '2.2rem', marginBottom: 16 }}>
+      <div className="page-heading">
+        <h2>
           <CrownOutlined style={{ marginRight: 12 }} />
           最終勝出者
         </h2>
-        <p style={{ color: '#666', fontSize: '1.2rem' }}>
-          各項目、各組別、各性別的冠軍得主
-        </p>
+        <p>各項目、各組別、各性別的冠軍得主</p>
       </div>
 
       {Object.keys(winnersByEvent).map(eventName => (
         <Card 
           key={eventName}
           title={
-            <div style={{ display: 'flex', alignItems: 'center', fontSize: '1.3rem' }}>
-              <TrophyOutlined style={{ marginRight: 12, color: '#ffd700' }} />
+            <div style={{ display: 'flex', alignItems: 'center', fontSize: 20, fontWeight: 600 }}>
+              <TrophyOutlined style={{ marginRight: 12, color: 'var(--accent)' }} />
               {eventName}
             </div>
           }
           style={{ marginBottom: 32 }}
-          headStyle={{ 
-            background: 'linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)',
-            color: '#8b6914',
-            fontWeight: 'bold'
-          }}
         >
           <Row gutter={[24, 24]}>
             {winnersByEvent[eventName].map(({ key, winner }) => {
@@ -128,37 +121,19 @@ const Winners = ({ loading }) => {
                 <Col xs={24} sm={12} lg={8} key={key}>
                   <div className="winner-card">
                     <div style={{ marginBottom: 16 }}>
-                      <CrownOutlined style={{ 
-                        fontSize: '2rem', 
-                        color: '#8b6914',
-                        marginBottom: 8
-                      }} />
+                      <CrownOutlined style={{ fontSize: 32, color: 'var(--gold)' }} />
                     </div>
                     
-                    <h3 style={{ 
-                      margin: '0 0 8px 0', 
-                      color: '#8b6914',
-                      fontSize: '1.1rem'
-                    }}>
+                    <h3>
                       {groupType} - {gender}
                     </h3>
                     
-                    <div style={{ 
-                      fontSize: '1.3rem', 
-                      fontWeight: 'bold',
-                      color: '#8b6914',
-                      marginBottom: 8
-                    }}>
+                    <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>
                       <UserOutlined style={{ marginRight: 8 }} />
                       {winner.team_name && winner.team_name !== winner.participant_name ? `${winner.team_name} - ${winner.participant_name}` : winner.participant_name}
                     </div>
                     
-                    <div className="score" style={{ 
-                      fontSize: '2.2rem',
-                      fontWeight: 'bold',
-                      color: '#8b6914',
-                      textShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                    }}>
+                    <div className="score">
                       {winner.score}
                       <span style={{ 
                         fontSize: '1rem',
@@ -172,13 +147,8 @@ const Winners = ({ loading }) => {
                       </span>
                     </div>
                     
-                    <div style={{ 
-                      marginTop: 12,
-                      fontSize: '0.9rem',
-                      color: '#8b6914',
-                      opacity: 0.8
-                    }}>
-                      🏆 冠軍
+                    <div style={{ marginTop: 12, fontSize: 13, color: 'var(--text-secondary)' }}>
+                      冠軍
                     </div>
                   </div>
                 </Col>
@@ -188,18 +158,13 @@ const Winners = ({ loading }) => {
         </Card>
       ))}
 
-      <Card style={{ 
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        color: 'white',
-        textAlign: 'center',
-        marginTop: 32
-      }}>
-        <h3 style={{ color: 'white', marginBottom: 16 }}>
-          <TrophyOutlined style={{ marginRight: 8 }} />
-          恭喜所有勝出者！
+      <Card className="congrats-card">
+        <h3 style={{ color: 'var(--text-primary)', marginBottom: 16 }}>
+          <TrophyOutlined style={{ marginRight: 8, color: 'var(--accent)' }} />
+          恭喜所有勝出者
         </h3>
-        <p style={{ color: 'white', opacity: 0.9, margin: 0 }}>
-          感謝所有參賽者的精彩表現，期待下次運動會的到來！
+        <p style={{ color: 'var(--text-secondary)', margin: 0 }}>
+          感謝所有參賽者的精彩表現，期待下次運動會的到來。
         </p>
       </Card>
     </div>
