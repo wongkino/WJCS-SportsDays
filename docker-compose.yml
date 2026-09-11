@@ -1,119 +1,57 @@
+name: sport
+
 services:
-  backend:
-    image: node:18-alpine
-    container_name: sport-backend
+  mariadb:
+    image: mariadb:11
+    container_name: sport-db
+    networks:
+      - sportday-network
+    volumes:
+      - ./db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: wjcssportsdays
+      MYSQL_USER: wjcsuser
+      MYSQL_PASSWORD: wjcspassword
+      TZ: Asia/Hong_Kong
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    image: ghcr.io/wongkino/wjcs-sportsdays:${APP_VERSION:-latest}
+    container_name: sport-app
     networks:
       - sportday-network
     ports:
-      - "3300:3300"
-    volumes:
-      - ./server:/app
-      - ./data:/app/data
+      - "3200:3200"
     environment:
-      - NODE_ENV=production
-      - PORT=3300
-    command: >
-      sh -c "
-        apk add --no-cache python3 make g++ sqlite-dev musl-dev &&
-        cd /app &&
-        npm install express cors sqlite3 body-parser multer csv-parser &&
-        node index.js
-      "
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3300/api/events"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
-  public-frontend:
-    image: node:18-alpine
-    container_name: sport-public-frontend
-    networks:
-      - sportday-network
-    expose:
-      - "3000"
-    volumes:
-      - ./client-public:/app
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - HOST=0.0.0.0
-      - WDS_SOCKET_HOST=0.0.0.0
-      - WDS_SOCKET_PORT=3000
-      - DANGEROUSLY_DISABLE_HOST_CHECK=true
-    command: >
-      sh -c "
-        cd /app &&
-        npm install &&
-        npm start
-      "
-    restart: unless-stopped
+      NODE_ENV: production
+      TZ: Asia/Hong_Kong
+      PORT: 3200
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      DB_USER: wjcsuser
+      DB_PASSWORD: wjcspassword
+      DB_NAME: wjcssportsdays
+      PUBLIC_WEB_DIR: /app/web/public
+      ADMIN_WEB_DIR: /app/web/admin
     depends_on:
-      backend:
+      mariadb:
         condition: service_healthy
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://0.0.0.0:3000/"]
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3200/api/events').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
-
-  admin-frontend:
-    image: node:18-alpine
-    container_name: sport-admin-frontend
-    networks:
-      - sportday-network
-    expose:
-      - "3000"
-    volumes:
-      - ./client-admin:/app
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-      - HOST=0.0.0.0
-      - WDS_SOCKET_HOST=0.0.0.0
-      - WDS_SOCKET_PORT=3200
-      - DANGEROUSLY_DISABLE_HOST_CHECK=true
-      - PUBLIC_URL=/
-    command: >
-      sh -c "
-        cd /app &&
-        npm install &&
-        npm start
-      "
-    restart: unless-stopped
-    depends_on:
-      backend:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://0.0.0.0:3200/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-
-  nginx:
-    image: nginx:alpine
-    container_name: sport-nginx
-    networks:
-      - sportday-network
-    ports:
-      - "3200:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./client-admin/public/scorer.html:/usr/share/nginx/html/scorer.html
-      - ./client-admin/public/scorer-dashboard.html:/usr/share/nginx/html/scorer-dashboard.html
-    depends_on:
-      - public-frontend
-      - admin-frontend
-      - backend
-    restart: unless-stopped
+      start_period: 20s
 
 networks:
   sportday-network:
     driver: bridge
     external: true
-
-volumes:
-  data:
-    driver: local

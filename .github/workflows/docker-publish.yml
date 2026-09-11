@@ -5,9 +5,10 @@ on:
     branches:
       - main
     paths:
+      - "Dockerfile"
+      - ".dockerignore"
       - "server/**"
-      - "client-public/**"
-      - "client-admin/**"
+      - "web/**"
       - ".github/workflows/docker-publish.yml"
   workflow_dispatch:
 
@@ -21,7 +22,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  OWNER: ${{ github.repository_owner }}
+  IMAGE_NAME: ${{ github.repository_owner }}/wjcs-sportsdays
 
 jobs:
   build-and-push:
@@ -50,44 +51,25 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push backend
-        uses: docker/build-push-action@v6
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
         with:
-          context: ./server
-          file: ./server/Dockerfile
-          platforms: linux/amd64
-          push: true
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            ${{ env.REGISTRY }}/${{ env.OWNER }}/wjcs-sportsdays-backend:latest
-            ${{ env.REGISTRY }}/${{ env.OWNER }}/wjcs-sportsdays-backend:${{ steps.app_version.outputs.version }}
-            ${{ env.REGISTRY }}/${{ env.OWNER }}/wjcs-sportsdays-backend:v${{ steps.app_version.outputs.version }}
-          cache-from: type=gha,scope=backend
-          cache-to: type=gha,mode=max,scope=backend
+            type=raw,value=latest
+            type=raw,value=${{ steps.app_version.outputs.version }}
+            type=raw,value=v${{ steps.app_version.outputs.version }}
+            type=sha,prefix=
 
-      - name: Build and push public frontend
+      - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: ./client-public
-          file: ./client-public/Dockerfile
+          context: .
+          file: ./Dockerfile
           platforms: linux/amd64
           push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.OWNER }}/wjcs-sportsdays-public:latest
-            ${{ env.REGISTRY }}/${{ env.OWNER }}/wjcs-sportsdays-public:${{ steps.app_version.outputs.version }}
-            ${{ env.REGISTRY }}/${{ env.OWNER }}/wjcs-sportsdays-public:v${{ steps.app_version.outputs.version }}
-          cache-from: type=gha,scope=public
-          cache-to: type=gha,mode=max,scope=public
-
-      - name: Build and push admin frontend
-        uses: docker/build-push-action@v6
-        with:
-          context: ./client-admin
-          file: ./client-admin/Dockerfile
-          platforms: linux/amd64
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.OWNER }}/wjcs-sportsdays-admin:latest
-            ${{ env.REGISTRY }}/${{ env.OWNER }}/wjcs-sportsdays-admin:${{ steps.app_version.outputs.version }}
-            ${{ env.REGISTRY }}/${{ env.OWNER }}/wjcs-sportsdays-admin:v${{ steps.app_version.outputs.version }}
-          cache-from: type=gha,scope=admin
-          cache-to: type=gha,mode=max,scope=admin
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

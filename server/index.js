@@ -1,13 +1,13 @@
 const express = require('express');
 const cors = require('cors');
-const sqlite3 = require('sqlite3').verbose();
 const multer = require('multer');
 const csv = require('csv-parser');
 const fs = require('fs');
 const path = require('path');
+const db = require('./db');
 
 const app = express();
-const PORT = process.env.PORT || 3300;
+const PORT = process.env.PORT || 3200;
 
 // 中間件
 app.use(cors());
@@ -37,95 +37,83 @@ app.get('/api/participants/template', (req, res) => {
   }
 });
 
-// 資料庫初始化
-const dbPath = process.env.DB_PATH || path.join(__dirname, 'sportday.db');
-const db = new sqlite3.Database(dbPath);
-
 // 建立資料表
 db.serialize(() => {
-  // 啟用外鍵約束
-  db.run('PRAGMA foreign_keys = ON');
-  
-  // 參賽者組別表
   db.run(`CREATE TABLE IF NOT EXISTS participant_groups (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL UNIQUE,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
     description TEXT,
-    is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1)),
+    is_active TINYINT NOT NULL DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
 
-  // 參賽者表
   db.run(`CREATE TABLE IF NOT EXISTS participants (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    group_id INTEGER,
-    group_type TEXT NOT NULL CHECK (group_type IN ('工場及社區組', '展能組')),
-    gender TEXT NOT NULL CHECK (gender IN ('男', '女')),
-    team_name TEXT,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    group_id INT,
+    group_type VARCHAR(64),
+    gender VARCHAR(8) NOT NULL,
+    team_name VARCHAR(255),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (group_id) REFERENCES participant_groups (id) ON DELETE SET NULL,
     UNIQUE(name, group_type, gender)
   )`);
 
-  // 比賽項目表
   db.run(`CREATE TABLE IF NOT EXISTS events (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    type TEXT NOT NULL CHECK (type IN ('個人', '團體')),
-    group_types TEXT DEFAULT '工場及社區組,展能組',
-    genders TEXT DEFAULT '男,女',
-    calculation_unit TEXT DEFAULT '分',
-    ranking_method TEXT DEFAULT '最高分' CHECK (ranking_method IN ('最高分', '最低分', '最快時間', '最遠距離', '最多次數')),
-    max_rounds INTEGER DEFAULT 2 CHECK (max_rounds IN (1, 2, 3, 4)),
-    default_rounds INTEGER DEFAULT 1 CHECK (default_rounds IN (1, 2, 3, 4)),
-    is_final_only INTEGER DEFAULT 0 CHECK (is_final_only IN (0, 1)),
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    type VARCHAR(32) NOT NULL,
+    group_type VARCHAR(64),
+    gender VARCHAR(32),
+    group_types VARCHAR(255) DEFAULT '工場及社區組,展能組',
+    genders VARCHAR(64) DEFAULT '男,女',
+    calculation_unit VARCHAR(32) DEFAULT '分',
+    ranking_method VARCHAR(32) DEFAULT '最高分',
+    max_rounds INT DEFAULT 2,
+    default_rounds INT DEFAULT 1,
+    is_final_only TINYINT DEFAULT 0,
     description TEXT,
-    is_active INTEGER DEFAULT 1 CHECK (is_active IN (0, 1)),
+    is_active TINYINT DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(name, type, group_type, gender)
+    UNIQUE KEY idx_events_name_type (name, type)
   )`);
 
-  // 分數表
   db.run(`CREATE TABLE IF NOT EXISTS scores (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    participant_id INTEGER NOT NULL,
-    event_id INTEGER NOT NULL,
-    round INTEGER NOT NULL CHECK (round IN (1, 2)),
-    score REAL NOT NULL CHECK (score >= 0),
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    participant_id INT NOT NULL,
+    event_id INT NOT NULL,
+    round INT NOT NULL,
+    score DOUBLE NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (participant_id) REFERENCES participants (id) ON DELETE CASCADE,
     FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE,
     UNIQUE(participant_id, event_id, round)
   )`);
 
-  // 管理員表
   db.run(`CREATE TABLE IF NOT EXISTS admins (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
 
-  // 比賽狀態表 - 按項目獨立管理
   db.run(`CREATE TABLE IF NOT EXISTS competition_status (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    event_id INTEGER NOT NULL,
-    is_finished INTEGER NOT NULL DEFAULT 0 CHECK (is_finished IN (0, 1)),
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    event_id INT NOT NULL,
+    is_finished TINYINT NOT NULL DEFAULT 0,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE,
     UNIQUE(event_id)
   )`);
 
-  // 記分員表
   db.run(`CREATE TABLE IF NOT EXISTS scorers (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    username TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL,
-    assigned_events TEXT, -- JSON 格式存儲負責的項目
-    is_active INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1)),
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    assigned_events TEXT,
+    is_active TINYINT NOT NULL DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
@@ -2331,53 +2319,55 @@ app.post('/api/import/scores', upload.single('file'), (req, res) => {
       return res.status(400).json({ error: '沒有有效的分數資料' });
     }
 
-    // 批量插入分數
-    let successCount = 0;
-    let errorCount = 0;
-    const processErrors = [];
+    (async () => {
+      let successCount = 0;
+      let errorCount = 0;
+      const processErrors = [];
 
-    for (const scoreData of scores) {
-      try {
-        // 查找參賽者ID
-        const participant = db.prepare('SELECT id FROM participants WHERE name = ?').get(scoreData.participant_name);
-        if (!participant) {
-          processErrors.push(`找不到參賽者：${scoreData.participant_name}`);
+      for (const scoreData of scores) {
+        try {
+          const participant = await db.getAsync('SELECT id FROM participants WHERE name = ?', [scoreData.participant_name]);
+          if (!participant) {
+            processErrors.push(`找不到參賽者：${scoreData.participant_name}`);
+            errorCount++;
+            continue;
+          }
+
+          const event = await db.getAsync('SELECT id FROM events WHERE name = ?', [scoreData.event_name]);
+          if (!event) {
+            processErrors.push(`找不到比賽項目：${scoreData.event_name}`);
+            errorCount++;
+            continue;
+          }
+
+          await db.runAsync(
+            'INSERT OR REPLACE INTO scores (participant_id, event_id, round, score) VALUES (?, ?, ?, ?)',
+            [participant.id, event.id, scoreData.round, scoreData.score]
+          );
+          successCount++;
+        } catch (err) {
+          processErrors.push(`處理失敗：${scoreData.participant_name} - ${scoreData.event_name}: ${err.message}`);
           errorCount++;
-          continue;
         }
-
-        // 查找比賽項目ID
-        const event = db.prepare('SELECT id FROM events WHERE name = ?').get(scoreData.event_name);
-        if (!event) {
-          processErrors.push(`找不到比賽項目：${scoreData.event_name}`);
-          errorCount++;
-          continue;
-        }
-
-        // 插入分數
-        db.prepare('INSERT OR REPLACE INTO scores (participant_id, event_id, round, score) VALUES (?, ?, ?, ?)')
-          .run(participant.id, event.id, scoreData.round, scoreData.score);
-        
-        successCount++;
-      } catch (err) {
-        processErrors.push(`處理失敗：${scoreData.participant_name} - ${scoreData.event_name}: ${err.message}`);
-        errorCount++;
       }
-    }
 
-    // 清理上傳的檔案
-    fs.unlinkSync(filePath);
+      fs.unlinkSync(filePath);
 
-    let message = `成功匯入 ${successCount} 筆分數記錄`;
-    if (errorCount > 0) {
-      message += `，${errorCount} 筆失敗`;
-    }
+      let message = `成功匯入 ${successCount} 筆分數記錄`;
+      if (errorCount > 0) {
+        message += `，${errorCount} 筆失敗`;
+      }
 
-    res.json({ 
-      message: message,
-      successCount: successCount,
-      errorCount: errorCount,
-      errors: processErrors.slice(0, 10) // 只返回前10個錯誤
+      res.json({
+        message: message,
+        successCount: successCount,
+        errorCount: errorCount,
+        errors: processErrors.slice(0, 10)
+      });
+    })().catch((err) => {
+      console.error('處理分數匯入時發生錯誤:', err);
+      try { fs.unlinkSync(filePath); } catch (e) {}
+      res.status(500).json({ error: '處理分數匯入時發生錯誤' });
     });
 
   } catch (err) {
@@ -2801,8 +2791,9 @@ app.put('/api/admin/profile', (req, res) => {
   });
 });
 
-// 優雅關閉
-process.on('SIGINT', () => {
+require('./serve-web')(app);
+
+function shutdown() {
   db.close((err) => {
     if (err) {
       console.error(err.message);
@@ -2810,4 +2801,7 @@ process.on('SIGINT', () => {
     console.log('資料庫連線已關閉');
     process.exit(0);
   });
-});
+}
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
