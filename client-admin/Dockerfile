@@ -5,7 +5,7 @@ RUN npm ci
 COPY . .
 ENV CI=false
 ENV DISABLE_ESLINT_PLUGIN=true
-ENV PUBLIC_URL=/
+ENV PUBLIC_URL=/admin
 RUN npm run build
 
 FROM nginx:alpine
